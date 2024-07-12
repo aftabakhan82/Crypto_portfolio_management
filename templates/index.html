@@ -1,0 +1,52 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Crypto Portfolio</title>
+</head>
+<body>
+    <header><h1>Crypto Portfolio</h1></header>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="form-control">
+                <form action="{{ url_for('add_transaction') }}" method="post">
+                    <input type="text" name="symbol" placeholder="Symbol (e.g., BTC)" required>
+                    <input type="number" name="amount" placeholder="Amount" min="0" step="0.0001" required>
+                    <input type="number" name="price" placeholder="Price" min="0" step="0.01" required><br>
+                    <button type="submit">Add Transaction</button>
+                </form>
+            </div>
+            <ul id="portfolio">
+                {% for item in portfolio %}
+                    <li>
+                        <b><span>{{ item.symbol }}</span></b>: 
+                        {{ item.amount }} @ ${{ '%.2f' % item.price }} | 
+                        Live Price: ${{ '%.2f' % live_prices.get(item.symbol, 0.0) }} | 
+                        Current Value: ${{ '%.2f' % (item.amount * live_prices.get(item.symbol, 0.0)) }} | 
+                        <span style="color: {{ 'green' if (item.amount * live_prices.get(item.symbol, 0.0)) - (item.amount * item.price) >= 0 else 'red' }}">
+                            ${{ '%.2f' % ((item.amount * live_prices.get(item.symbol, 0.0)) - (item.amount * item.price)) }}
+                        </span>
+                        <form action="{{ url_for('delete_transaction', id=item.id) }}" method="post">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        </aside>
+        <main>
+            <div class="chart">
+                <h2>Portfolio Distribution</h2>
+                <img src="{{ url_for('chart') }}" alt="Portfolio Chart">
+            </div>
+            <div class="Profit_chart">
+                <h2>Profit/Loss Chart</h2>
+                <img src="{{ url_for('profit_chart') }}" >
+            </div>
+        </main>
+    </div>
+    <footer>
+        <p>&copy; 2024 Crypto Portfolio App</p>
+    </footer>
+</body>
+</html>
